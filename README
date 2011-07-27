@@ -1,0 +1,35 @@
+To launch do "python devilish.py" from the console. By default it will try to
+open /var/log/syslog at startup, you can change settings editing "config.cfg".
+
+You need the following packages for it to run:
+python-pyinotify     #sudo apt-get install python-pyinotify
+pygtk
+python-notify        #sudo apt-get install python-notify 
+
+
+EXAMPLE USAGE:
+Say you want to know realtime if someone tries to connect to your ssh server
+on port 22.
+Add this rule to iptables to log incoming connections to port 22 TCP (ssh) :
+# iptables -A INPUT -p tcp -m tcp --dport 22 -j LOG --log-prefix "Alert_Port_22"
+Now edit config.cfg and in the "filterstings" lines put this:
+# filterstrings = "Alert_Port_22", "other_sting1", "other_string2"
+And set it to monitor your syslog, BE SURE YOU HAVE READ ACCESS TO SYSLOG.
+# logfilepath = /var/log/syslog
+You will be notified as soon as someone tries to connect to port 22 via the
+notification daemon and also the icon in tray will change when a line is
+detected just in case you were not in the pc when it happened.
+
+
+
+KNOWN BUG: after running an error will be printed in the console saying:
+    ...."There is a disparity between the
+    internal view of the GtkTreeView, and the GtkTreeModel.  This generally
+    means that the model has changed without letting the view know.
+    Any display from now on is likely to be incorrect."...
+
+If you know how to fix this contact me please.
+
+KNOWN BUG: if you don't configure right the file to open at startup in 
+    config.cfg, a fileopendialog will appear and the app will not exit
+    completely when you close Devilish

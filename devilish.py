@@ -239,9 +239,6 @@ class  Devilish:
 
     #called when modification is detected by pyinotify
     def log_change_action(self,event):
-        #Change icon in tray to one showing a warning
-        if self.icon_in_tray == 0:
-            self.statusicon.set_from_pixbuf(self.icon_alert_pixbuf)
         #read line in log and append to liststore if it has wanted string
         #file.readline will return empty string if it reachs EOF.
         line = self.file.readline()
@@ -251,6 +248,9 @@ class  Devilish:
                     line = line.rstrip('\n')
                     linetime=line[0:15]
                     linelog=line[16:]
+                    #Change icon in tray to one showing a warning
+                    if self.icon_in_tray == 0:
+                        self.statusicon.set_from_pixbuf(self.icon_alert_pixbuf)
                     #if window is active, don't show notifications
                     window_isactive = self.window.is_active()
                     if (self.show_notify_bubble == "1" and 

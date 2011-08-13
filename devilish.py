@@ -52,12 +52,12 @@ class  Devilish:
     def __init__(self):
         gladefilename = "devilish.glade"
         builder = gtk.Builder()
-        builder.add_from_file(gladefilename)
+        builder.add_objects_from_file(gladefilename,
+        ["window1", "statusicon1", "liststore1", "image1", "image2"])
         builder.connect_signals(self)
 
         #widgets
         self.window = builder.get_object('window1')
-        self.aboutdlg = builder.get_object('aboutdialog1')
         self.liststore = builder.get_object('liststore1')
         self.modelfilter = self.liststore.filter_new()
         self.statusicon = builder.get_object('statusicon1')
@@ -110,15 +110,6 @@ class  Devilish:
 
         self.show_notify_bubble = config.get("Main", "notifybubble")
 
-
-    #Show about dialog
-    def show_about_dialog(self, widget):
-        self.aboutdlg.connect("response", self.hide_about)
-        self.aboutdlg.show()
-
-    def hide_about(self, widget, data=None):
-        self.aboutdlg.hide()
-        return True
 
     #Open filterdialog on Menu->Edit->"Search Strings"
     def on_filter_words_dialog_open(self, widget):
@@ -237,6 +228,10 @@ class  Devilish:
         self.notifier.start()
         self.wm.add_watch(self.filename, pyinotify.IN_MODIFY)
 
+
+    def show_about_dialog(self, widget):
+        aboutdlg = AboutDialog()
+
     #called when modification is detected by pyinotify
     def log_change_action(self,event):
         #read line in log and append to liststore if it has wanted string
@@ -271,6 +266,20 @@ class EventHandler(pyinotify.ProcessEvent):
     def process_IN_MODIFY(self, event):
         #what to do in "modify" event 
         app.log_change_action(event)
+
+
+class AboutDialog():
+    def __init__(self):
+        gladefilename = "devilish.glade"
+        builder = gtk.Builder()
+        builder.add_objects_from_file(gladefilename, ["aboutdialog1"])
+        self.aboutdlg = builder.get_object("aboutdialog1")
+        self.aboutdlg.connect("response", self.hide_about)
+        self.aboutdlg.show()
+
+    def hide_about(self, widget, data=None):
+        self.aboutdlg.hide()
+        return True
 
 
 class FilterDialog():
@@ -321,8 +330,6 @@ class FilterDialog():
 
     def on_button_dialog1_cancel_clicked(self, widget):
         self.filterwordsdialog.destroy()
-
-
 
 
 if __name__ == "__main__":

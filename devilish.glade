@@ -18,6 +18,7 @@ Icons from Gnome Icon Theme.
     <property name="authors">Iye (iye dot cba at gmail dot com)</property>
     <property name="logo">icons/face-devilish-2.png</property>
     <property name="wrap_license">True</property>
+    <signal name="response" handler="hide_about" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>

@@ -85,8 +85,8 @@ class  Devilish:
         self.icon_allfine_pixbuf = gtk.gdk.pixbuf_new_from_file("icons/face-devilish.png")
         self.icon_alert_pixbuf = gtk.gdk.pixbuf_new_from_file("icons/face-angry.png")
 
-        #Show notify daemon bubble?
-        self.show_notify_bubble = 1
+        #Show notify daemon bubble. Set to "True" here but set from config file later.
+        self.show_notify_bubble = True
 
         #Load setting from config.cfg
         self.load_settings()
@@ -105,7 +105,7 @@ class  Devilish:
         var = var.strip('\"')
         self.filterwordlist = var.split('\", \"')
 
-        self.show_notify_bubble = config.get("Main", "notifybubble")
+        self.show_notify_bubble = config.getboolean("Main", "notifybubble")
 
 
     #Open filterdialog on Menu->Edit->"Search Strings"
@@ -123,6 +123,7 @@ class  Devilish:
             return True
         else:
             return False
+
     
     #Called when the quick search box entry1 has some modification
     def on_entry1_changed(self, widget):
@@ -143,7 +144,6 @@ class  Devilish:
             tryfile = open(filepath)
             self.filename = tryfile.name
         except:
-            print(filepath, "Not found, check if you have read access to that file")
             self.filename = None
             dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
                                    gtk.MESSAGE_INFO, gtk.BUTTONS_CLOSE,
@@ -238,7 +238,7 @@ class  Devilish:
                         self.statusicon.set_from_pixbuf(self.icon_alert_pixbuf)
                     #if window is active, don't show notifications
                     window_isactive = self.window.is_active()
-                    if (self.show_notify_bubble == "1" and 
+                    if (self.show_notify_bubble == True and 
                         window_isactive != True):
                         n = pynotify.Notification(linetime, linelog)
                         try:
@@ -321,22 +321,23 @@ class FilterDialog():
         #Load glade file
         gladefilename = "devilish.glade"
         builder = gtk.Builder()
-        builder.add_objects_from_file(gladefilename, ["dialog1", "textview1"])
+        builder.add_objects_from_file(gladefilename,
+        ["dialog1", "textview1", "checkbutton_notify"])
         builder.connect_signals(self) 
-   #     signal = { "sss" : algo, 
 
-
-#        gladefilename = "dialog.glade"
-#        builder = gtk.Builder()
-#        builder.add_from_file(gladefilename)
-#        builder.connect_signals(self)
-#
         self.filterwordsdialog = builder.get_object("dialog1")
         self.filterwords_textview = builder.get_object("textview1")
+        self.ckbutton_notify = builder.get_object("checkbutton_notify")
 
         #To be able to access members of parent window
         self._parent_window = parent_window
-        
+
+        #Set the show notify baloon checkbox to current state
+        if self._parent_window.show_notify_bubble == True:
+            self.ckbutton_notify.set_active(gtk.TRUE)
+        else:
+            self.ckbutton_notify.set_active(gtk.FALSE)
+
         #Convert list to string so we can then convert it to gtk.textbuffer.
         #Gtk.textview uses gtk.textbuffer for showing text.
         try:
@@ -353,12 +354,18 @@ class FilterDialog():
         self._parent_window.filterwordlist = string_of_buffer.split("\n")
         self.filterwordsdialog.destroy()
 
+
+        self._parent_window.show_notify_bubble = self.ckbutton_notify.get_active()
+
+
         #Save filters to config file
         config = ConfigParser.RawConfigParser()
         config.read(['config.cfg', os.path.expanduser('~/.config/devilish/config.cfg')])
         var = '\"' + string_of_buffer + '\"'
         var = var.replace('\n','\", \"')
         config.set('Main', 'filterStrings', var)
+        #Save show_notify_bubble state to config
+        config.set('Main', 'notifybubble', self._parent_window.show_notify_bubble)
         #?? fix, is this writting to the config.cfg in current dir when maybe the
         #one in ./config/devilish is being used.
         with open('config.cfg', 'wb') as configfile:
@@ -367,7 +374,6 @@ class FilterDialog():
 
     def on_button_dialog1_cancel_clicked(self, widget):
         self.filterwordsdialog.destroy()
-
 
 
 

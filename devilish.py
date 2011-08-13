@@ -4,7 +4,6 @@
 #   Iye Cba <iye {dot} cba {at} gmail {dot} com>
 #   https://github.com/iye/devilish
 
-# Devilish 0.7b
 # devilish.py - PyGTK App for monitoring log files realtime. It uses inotify to
 # detect file modifications and when an appended line has a string you are
 # interested in, it will alert you via your notification daemon and with an icon
@@ -31,9 +30,6 @@
 # Icons taken from Gnome Icon Theme
 
 
-
-#TODO: implement regexp for complex filters? 
-#TODO: Move all code to open/save config.cfg to it's own class
 #TODO: right click on icontray displays "Quit" option
 #TODO: configparser sucks, deletes comments when saving setting to config file, replace.
 #TODO: "Copy to clipboard" option when right clicking on the log treeview        
@@ -46,6 +42,7 @@ import pyinotify
 import pynotify
 import ConfigParser
 import os
+
 
 class  Devilish:
 
@@ -147,6 +144,15 @@ class  Devilish:
             self.filename = tryfile.name
         except:
             print(filepath, "Not found, check if you have read access to that file")
+            self.filename = None
+            dialog = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL,
+                                   gtk.MESSAGE_INFO, gtk.BUTTONS_CLOSE,
+                                   "The file you choosed could not be opened."
+                                   " Check permissions on the file.")
+            dialog.set_title("Error")
+            dialog.run()
+            dialog.destroy()
+            pass
         
         if self.filename == None:
             self.on_open_menu_item_activate(self)
@@ -197,23 +203,7 @@ class  Devilish:
 
     #Select log file to monitor.
     def on_open_menu_item_activate(self, widget, data=None):
-        chooser = gtk.FileChooserDialog("Open File...", self.window,
-                                        gtk.FILE_CHOOSER_ACTION_OPEN,
-                                        (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
-                                         gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-        response = chooser.run()
-        if response == gtk.RESPONSE_OK:
-            self.filename = chooser.get_filename()
-            #stop notifier if working
-            if self.notifier != None: self.notifier.stop()
-        else:
-            self.filename = None
-            chooser.destroy()
-            self.on_open_menu_item_activate(self)
-            
-        chooser.destroy()
-        if self.filename: self.watch_log()
-
+        filechooser = FileChooser(self)
 
     #Open log file and start pyinotify thread.
     def watch_log(self):
@@ -262,10 +252,26 @@ class  Devilish:
             line = self.file.readline()
 
 
+
+
+
+
+
+
+
+
 class EventHandler(pyinotify.ProcessEvent):
     def process_IN_MODIFY(self, event):
         #what to do in "modify" event 
         app.log_change_action(event)
+
+
+
+
+
+
+
+
 
 
 class AboutDialog():
@@ -280,6 +286,47 @@ class AboutDialog():
     def hide_about(self, widget, data=None):
         self.aboutdlg.hide()
         return True
+
+
+
+
+
+
+
+
+
+
+
+
+class FileChooser():
+    def __init__(self, parent_window):
+
+        #To be able to access members of parent window
+        self._parent_window = parent_window
+
+        chooser = gtk.FileChooserDialog(title="Open Log File..."
+                , action=gtk.FILE_CHOOSER_ACTION_OPEN
+                , buttons=(gtk.STOCK_CANCEL
+                    , gtk.RESPONSE_CANCEL
+                    , gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+
+
+        response = chooser.run()
+        if response == gtk.RESPONSE_OK:
+            self._parent_window.filename = chooser.get_filename()
+            #stop notifier if working
+            if self._parent_window.notifier != None: self._parent_window.notifier.stop()
+        else:
+            self._parent_window.filename = None
+            chooser.destroy()
+            self._parent_window.on_open_menu_item_activate(self)
+            
+        if self._parent_window.filename: self._parent_window.watch_log()
+        chooser.destroy()
+
+
+
+
 
 
 class FilterDialog():
@@ -330,6 +377,8 @@ class FilterDialog():
 
     def on_button_dialog1_cancel_clicked(self, widget):
         self.filterwordsdialog.destroy()
+
+
 
 
 if __name__ == "__main__":

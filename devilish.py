@@ -255,21 +255,10 @@ class  Devilish:
 
 
 
-
-
-
-
-
 class EventHandler(pyinotify.ProcessEvent):
     def process_IN_MODIFY(self, event):
         #what to do in "modify" event 
         app.log_change_action(event)
-
-
-
-
-
-
 
 
 
@@ -286,14 +275,6 @@ class AboutDialog():
     def hide_about(self, widget, data=None):
         self.aboutdlg.hide()
         return True
-
-
-
-
-
-
-
-
 
 
 
@@ -334,12 +315,19 @@ class FilterDialog():
     # and let them edit the prefs there :)
     def __init__(self, parent_window):
         
-        #Load glade file for filterdialog
-        gladefilename = "dialog.glade"
+        #Load glade file
+        gladefilename = "devilish.glade"
         builder = gtk.Builder()
-        builder.add_from_file(gladefilename)
-        builder.connect_signals(self)
+        builder.add_objects_from_file(gladefilename, ["dialog1", "textview1"])
+        builder.connect_signals(self) 
+   #     signal = { "sss" : algo, 
 
+
+#        gladefilename = "dialog.glade"
+#        builder = gtk.Builder()
+#        builder.add_from_file(gladefilename)
+#        builder.connect_signals(self)
+#
         self.filterwordsdialog = builder.get_object("dialog1")
         self.filterwords_textview = builder.get_object("textview1")
 
@@ -361,7 +349,6 @@ class FilterDialog():
         string_of_buffer = textbuffer.get_text(*textbuffer.get_bounds())
         self._parent_window.filterwordlist = string_of_buffer.split("\n")
         self.filterwordsdialog.destroy()
-
 
         #Save filters to config file
         config = ConfigParser.RawConfigParser()

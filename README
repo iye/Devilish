@@ -29,7 +29,3 @@ KNOWN BUG: after running an error will be printed in the console saying:
     Any display from now on is likely to be incorrect."...
 
 If you know how to fix this contact me please.
-
-KNOWN BUG: if you don't configure right the file to open at startup in 
-    config.cfg, a fileopendialog will appear and the app will not exit
-    completely when you close Devilish

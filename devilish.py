@@ -241,7 +241,10 @@ class  Devilish:
                     if (self.show_notify_bubble == "1" and 
                         window_isactive != True):
                         n = pynotify.Notification(linetime, linelog)
-                        n.show()
+                        try:
+                            n.show()
+                        except Exception:
+                            pass
                     #Code to autoscroll treeview
                     #app.liststore.append([linelog, linetime]) #uncomment this
                     # and disable following 3 lines to disable autoscroll

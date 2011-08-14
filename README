@@ -3,7 +3,7 @@ open /var/log/syslog at startup, you can change settings editing "config.cfg".
 
 You need the following packages for it to run:
 python-pyinotify     #sudo apt-get install python-pyinotify
-pygtk
+pygtk                #sudo apt-get install python-gtk2
 python-notify        #sudo apt-get install python-notify 
 
 

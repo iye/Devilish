@@ -354,7 +354,7 @@ class FilterDialog():
         self._parent_window.filterwordlist = string_of_buffer.split("\n")
         self.filterwordsdialog.destroy()
 
-
+        #Set show_notify_bubble variable to state indicated by checkbox
         self._parent_window.show_notify_bubble = self.ckbutton_notify.get_active()
 
 
